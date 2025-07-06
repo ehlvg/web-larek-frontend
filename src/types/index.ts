@@ -73,6 +73,7 @@ export interface IProductModel {
   basket: IBasket;
   order: Partial<OrderData>;
   loading: boolean;
+  selected: string[];
   
   setCatalog(items: Product[]): void;
   setPreview(item: Product): void;
@@ -82,6 +83,8 @@ export interface IProductModel {
   setOrderField(field: keyof OrderData, value: string): void;
   validateOrder(): IFormErrors;
   validateContacts(): IFormErrors;
+  isInBasket(itemId: string): boolean;
+  getTotalPrice(): number;
 }
 
 export interface IView {
@@ -89,38 +92,75 @@ export interface IView {
 }
 
 export interface IModal extends IView {
+  modal: HTMLElement;
+  closeButton: HTMLButtonElement;
+  content: HTMLElement;
   open(): void;
   close(): void;
+  render(data: IModalData): HTMLElement;
+  handleClose(): void;
+  handleOverlayClick(event: MouseEvent): void;
+}
+
+export interface IModalData {
   content: HTMLElement;
 }
 
 export interface IFormView extends IView {
+  form: HTMLFormElement;
+  inputs: HTMLInputElement[];
+  submit: HTMLButtonElement;
+  errors: HTMLElement;
   valid: boolean;
-  errors: string[];
   render(state: Partial<IFormErrors> & { valid: boolean; errors: string[] }): HTMLElement;
   clear(): void;
+  setValid(isValid: boolean): void;
+  setErrors(errors: string[]): void;
+  onInputChange(field: string, value: string): void;
+  handleSubmit(event: Event): void;
+  handleInput(event: Event): void;
 }
 
 export interface IPage extends IView {
-  counter: number;
-  catalog: HTMLElement[];
+  counter: HTMLElement;
+  catalog: HTMLElement;
+  wrapper: HTMLElement;
+  basket: HTMLButtonElement;
   locked: boolean;
+  setCounter(value: number): void;
+  setCatalog(items: HTMLElement[]): void;
+  setLocked(value: boolean): void;
+  handleBasketClick(): void;
 }
 
 export interface ICard extends IView {
   id: string;
-  title: string;
-  category: string;
-  image: string;
-  price: string;
-  description: string;
-  button: string;
+  title: HTMLElement;
+  category: HTMLElement;
+  image: HTMLImageElement;
+  price: HTMLElement;
+  description?: HTMLElement;
+  button?: HTMLButtonElement;
+  index?: HTMLElement;
+  setText(element: HTMLElement, value: string): void;
+  setImage(element: HTMLImageElement, src: string, alt?: string): void;
+  setDisabled(element: HTMLElement, state: boolean): void;
+  setButtonText(text: string): void;
+  handleClick(): void;
+  handleButtonClick(): void;
+  handleDeleteClick?(): void;
 }
 
 export interface IBasketView extends IView {
   items: HTMLElement[];
   total: number;
-  selected: string[];
+  list: HTMLElement;
+  button: HTMLButtonElement;
+  price: HTMLElement;
+  setItems(items: HTMLElement[]): void;
+  setTotal(total: number): void;
+  setDisabled(state: boolean): void;
+  handleOrderClick(): void;
 }
 
 export interface IEvents {
@@ -233,4 +273,65 @@ export interface IFormSelectors {
   inputs: string;
   submit: string;
   errors: string;
+}
+
+export interface IOrderView extends IFormView {
+  paymentButtons: HTMLButtonElement[];
+  address: HTMLInputElement;
+  payment: PaymentMethod | null;
+  setPaymentMethod(method: PaymentMethod): void;
+  handlePaymentClick(event: Event): void;
+}
+
+export interface IContactsView extends IFormView {
+  email: HTMLInputElement;
+  phone: HTMLInputElement;
+}
+
+export interface ISuccessView extends IView {
+  title: HTMLElement;
+  description: HTMLElement;
+  close: HTMLButtonElement;
+  total: number;
+  handleClose(): void;
+}
+
+export interface IPageConstructor {
+  new(container: HTMLElement, events: IEvents): IPage;
+}
+
+export interface ICardConstructor {
+  new(template: HTMLTemplateElement, events: IEvents, actions?: ICardActions): ICard;
+}
+
+export interface IModalConstructor {
+  new(container: HTMLElement, events: IEvents): IModal;
+}
+
+export interface IBasketConstructor {
+  new(template: HTMLTemplateElement, events: IEvents): IBasketView;
+}
+
+export interface IFormConstructor {
+  new(container: HTMLFormElement, events: IEvents): IFormView;
+}
+
+export interface IOrderConstructor {
+  new(template: HTMLTemplateElement, events: IEvents): IOrderView;
+}
+
+export interface IContactsConstructor {
+  new(template: HTMLTemplateElement, events: IEvents): IContactsView;
+}
+
+export interface ISuccessConstructor {
+  new(template: HTMLTemplateElement, events: IEvents): ISuccessView;
+}
+
+export interface IProductModelConstructor {
+  new(data: Partial<IProductModel>, events: IEvents): IProductModel;
+}
+
+export interface ICardActions {
+  onClick: (event: MouseEvent) => void;
 }
