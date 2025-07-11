@@ -112,7 +112,7 @@ export interface IFormView extends IView {
   inputs: HTMLInputElement[];
   submit: HTMLButtonElement;
   errors: HTMLElement;
-  render(state: Partial<IFormErrors> & { valid: boolean; errors: string[] }): HTMLElement;
+  render(state: { valid: boolean; errors: string[] }): HTMLElement;
   clear(): void;
   setValid(isValid: boolean): void;
   setErrors(errors: string[]): void;
@@ -158,7 +158,7 @@ export interface IBasketView extends IView {
   totalPrice: HTMLElement;
   setItems(items: HTMLElement[]): void;
   setTotal(total: number): void;
-  setDisabled(state: boolean): void;
+  setButtonDisabled(state: boolean): void;
   handleOrderClick(): void;
 }
 
