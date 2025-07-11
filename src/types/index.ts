@@ -63,7 +63,6 @@ export interface IBasketItem {
 
 export interface IBasket {
   items: IBasketItem[];
-  total: number;
   count: number;
 }
 
@@ -81,10 +80,12 @@ export interface IProductModel {
   removeFromBasket(itemId: string): void;
   clearBasket(): void;
   setOrderField(field: keyof OrderData, value: string): void;
+  setPaymentMethod(method: PaymentMethod): void;
   validateOrder(): IFormErrors;
   validateContacts(): IFormErrors;
   isInBasket(itemId: string): boolean;
   getTotalPrice(): number;
+  getPaymentMethod(): PaymentMethod | null;
 }
 
 export interface IView {
@@ -111,7 +112,6 @@ export interface IFormView extends IView {
   inputs: HTMLInputElement[];
   submit: HTMLButtonElement;
   errors: HTMLElement;
-  valid: boolean;
   render(state: Partial<IFormErrors> & { valid: boolean; errors: string[] }): HTMLElement;
   clear(): void;
   setValid(isValid: boolean): void;
@@ -153,10 +153,9 @@ export interface ICard extends IView {
 
 export interface IBasketView extends IView {
   items: HTMLElement[];
-  total: number;
   list: HTMLElement;
   button: HTMLButtonElement;
-  price: HTMLElement;
+  totalPrice: HTMLElement;
   setItems(items: HTMLElement[]): void;
   setTotal(total: number): void;
   setDisabled(state: boolean): void;
@@ -278,7 +277,6 @@ export interface IFormSelectors {
 export interface IOrderView extends IFormView {
   paymentButtons: HTMLButtonElement[];
   address: HTMLInputElement;
-  payment: PaymentMethod | null;
   setPaymentMethod(method: PaymentMethod): void;
   handlePaymentClick(event: Event): void;
 }
@@ -292,7 +290,6 @@ export interface ISuccessView extends IView {
   title: HTMLElement;
   description: HTMLElement;
   close: HTMLButtonElement;
-  total: number;
   handleClose(): void;
 }
 

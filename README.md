@@ -80,7 +80,7 @@ yarn build
 - `setHidden(element: HTMLElement): void` — скрывает элемент
 - `setVisible(element: HTMLElement): void` — показывает элемент
 - `setImage(element: HTMLImageElement, src: string, alt?: string): void` — устанавливает изображение
-- `render(data?: object): HTMLElement` — отрисовывает компонент
+- `render(data?: object): HTMLElement` — возвращает подготовленный HTML-элемент-контейнер
 
 ### Api
 Класс `Api` обеспечивает работу с внешним API. Его функции: выполнение HTTP-запросов, обработка ошибок, преобразование данных.
@@ -129,7 +129,9 @@ yarn build
 - `validateOrder(): IFormErrors` — валидирует данные заказа
 - `validateContacts(): IFormErrors` — валидирует контактные данные
 - `isInBasket(itemId: string): boolean` — проверяет, есть ли товар в корзине
-- `getTotalPrice(): number` — возвращает общую стоимость корзины
+- `getTotalPrice(): number` — рассчитывает и возвращает общую стоимость корзины
+- `setPaymentMethod(method: PaymentMethod): void` — устанавливает способ оплаты
+- `getPaymentMethod(): PaymentMethod | null` — возвращает выбранный способ оплаты
 
 ## Описание компонентов
 
@@ -159,8 +161,8 @@ yarn build
 **Поля:**
 - `id: string` — идентификатор товара
 - `title: HTMLElement` — элемент названия товара
-- `category: HTMLElement` — элемент категории товара
-- `image: HTMLImageElement` — элемент изображения товара
+- `category?: HTMLElement` — элемент категории товара
+- `image?: HTMLImageElement` — элемент изображения товара
 - `price: HTMLElement` — элемент цены товара
 - `description?: HTMLElement` — элемент описания (для превью)
 - `button?: HTMLButtonElement` — кнопка действия
@@ -171,9 +173,6 @@ yarn build
 - `setImage(element: HTMLImageElement, src: string, alt?: string): void` — устанавливает изображение
 - `setDisabled(element: HTMLElement, state: boolean): void` — блокирует/разблокирует элемент
 - `setButtonText(text: string): void` — устанавливает текст кнопки
-- `handleClick(): void` — обработчик клика по карточке
-- `handleButtonClick(): void` — обработчик клика по кнопке карточки
-- `handleDeleteClick?(): void` — обработчик удаления товара из корзины
 
 ### Basket
 Компонент `Basket` отображает содержимое корзины покупок. Он показывает список товаров, общую стоимость и кнопку "Оформить" для перехода к оформлению заказа.
@@ -182,10 +181,9 @@ yarn build
 
 **Поля:**
 - `items: HTMLElement[]` — массив элементов товаров
-- `total: number` — общая стоимость
 - `list: HTMLElement` — контейнер списка товаров
 - `button: HTMLButtonElement` — кнопка "Оформить"
-- `price: HTMLElement` — элемент отображения общей стоимости
+- `totalPrice: HTMLElement` — элемент отображения общей стоимости
 
 **Методы:**
 - `setItems(items: HTMLElement[]): void` — устанавливает список товаров
@@ -220,7 +218,6 @@ yarn build
 - `inputs: HTMLInputElement[]` — массив полей ввода
 - `submit: HTMLButtonElement` — кнопка отправки формы
 - `errors: HTMLElement` — элемент для отображения ошибок
-- `valid: boolean` — состояние валидности формы
 
 **Методы:**
 - `setValid(isValid: boolean): void` — устанавливает состояние валидности
@@ -239,7 +236,6 @@ yarn build
 **Поля (наследует от Form + дополнительные):**
 - `paymentButtons: HTMLButtonElement[]` — кнопки выбора способа оплаты
 - `address: HTMLInputElement` — поле ввода адреса доставки
-- `payment: PaymentMethod | null` — выбранный способ оплаты
 
 **Методы (наследует от Form + дополнительные):**
 - `setPaymentMethod(method: PaymentMethod): void` — устанавливает способ оплаты
@@ -263,7 +259,6 @@ yarn build
 - `title: HTMLElement` — заголовок сообщения
 - `description: HTMLElement` — описание с суммой заказа
 - `close: HTMLButtonElement` — кнопка закрытия
-- `total: number` — общая стоимость заказа
 
 **Методы:**
 - `handleClose(): void` — обработчик закрытия окна успеха
@@ -291,8 +286,9 @@ yarn build
 ### IBasket
 Интерфейс `IBasket` описывает состояние корзины:
 - `items` — массив товаров в корзине
-- `total` — общая стоимость
 - `count` — количество товаров
+
+_Примечание: Общая стоимость рассчитывается динамически методом `getTotalPrice()` модели данных._
 
 ## Процессы приложения
 
