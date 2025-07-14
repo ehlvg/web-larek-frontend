@@ -111,7 +111,10 @@ events.on('basket:open', () => {
 
 events.on('basket:changed', (data: { basket: { items: any[], count: number } }) => {
     page.setCounter(data.basket.count);
-    if (document.querySelector('#modal-container.modal_active')) {
+    const modalContainer = document.querySelector('#modal-container.modal_active');
+    if (modalContainer) {
+        const modalContent = modalContainer.querySelector('.modal__content');
+        if (modalContent && modalContent.querySelector('.basket')) {
         const basketItems = appModel.basket.items.map((item, index) => {
             const card = new Card(cardBasketTemplate, events);
             const cardElement = card.renderBasketItem(item);
@@ -128,6 +131,7 @@ events.on('basket:changed', (data: { basket: { items: any[], count: number } }) 
             return cardElement;
         });
         modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
+    }
     }
 });
 
@@ -157,7 +161,6 @@ events.on('order:submit', (data: { payment: PaymentMethod; address: string }) =>
 events.on('contacts:submit', (data: { email: string; phone: string }) => {
     appModel.setOrderField('email', data.email);
     appModel.setOrderField('phone', data.phone);
-    
     const errors = appModel.validateContacts();
     if (Object.keys(errors).length === 0) {
         const orderData = {
@@ -165,9 +168,9 @@ events.on('contacts:submit', (data: { email: string; phone: string }) => {
             total: appModel.getTotalPrice(),
             items: appModel.basket.items.map(item => item.id)
         };
-        
         api.submitOrder(orderData as any)
             .then(result => {
+                const success = new Success(successTemplate, events);
                 const successData = { total: result.total };
                 modal.render({ content: success.render(successData) });
                 appModel.clearBasket();
