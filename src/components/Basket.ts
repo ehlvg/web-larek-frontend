@@ -10,12 +10,10 @@ export class Basket extends Component<IBasket> implements IBasketView {
     totalPrice: HTMLElement;
 
     constructor(template: HTMLTemplateElement, protected events: IEvents) {
-        super(template.content.cloneNode(true) as HTMLElement);
-        
+        super((template.content.cloneNode(true) as DocumentFragment).firstElementChild as HTMLElement);
         this.list = ensureElement('.basket__list', this.container);
         this.button = ensureElement('.basket__button', this.container) as HTMLButtonElement;
         this.totalPrice = ensureElement('.basket__price', this.container);
-
         this.button.addEventListener('click', () => this.handleOrderClick());
     }
 

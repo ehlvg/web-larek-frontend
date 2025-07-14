@@ -18,10 +18,9 @@ export class Card extends Component<Product> implements ICard {
         super(template.content.cloneNode(true) as HTMLElement);
         
         this.title = ensureElement('.card__title', this.container);
-        this.category = ensureElement('.card__category', this.container);
-        this.image = ensureElement('.card__image', this.container) as HTMLImageElement;
+        this.category = this.container.querySelector('.card__category') as HTMLElement;
+        this.image = this.container.querySelector('.card__image') as HTMLImageElement;
         this.price = ensureElement('.card__price', this.container);
-        
         // Необязательные элементы
         this.description = this.container.querySelector('.card__text');
         this.button = this.container.querySelector('.card__button');
@@ -32,7 +31,6 @@ export class Card extends Component<Product> implements ICard {
             this.handleClick();
         };
         this.container.addEventListener('click', clickHandler);
-        // Для вложенных элементов тоже
         Array.from(this.container.querySelectorAll('*')).forEach(el => {
             el.addEventListener('click', clickHandler);
         });
@@ -125,9 +123,9 @@ export class Card extends Component<Product> implements ICard {
 
     renderBasketItem(data: IBasketItem): HTMLElement {
         this.id = data.id;
-        this.setText(this.title, data.title);
-        this.setText(this.price, data.price + ' синапсов');
-        
+        if (this.title) this.setText(this.title, data.title);
+        if (this.price) this.setText(this.price, data.price + ' синапсов');
+        if (this.index) this.setText(this.index, '');
         return this.container;
     }
 
