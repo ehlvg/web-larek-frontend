@@ -10,9 +10,14 @@ export class Contacts extends Form implements IContactsView {
     constructor(template: HTMLTemplateElement, protected events: IEvents) {
         const container = template.content.cloneNode(true) as HTMLFormElement;
         super(container.querySelector('form'), events);
-        
         this.email = ensureElement<HTMLInputElement>('[name="email"]', this.form);
         this.phone = ensureElement<HTMLInputElement>('[name="phone"]', this.form);
+        this.email.addEventListener('input', () => {
+            this.events.emit('contacts:email-change', { email: this.email.value });
+        });
+        this.phone.addEventListener('input', () => {
+            this.events.emit('contacts:phone-change', { phone: this.phone.value });
+        });
     }
 
     handleSubmit(event: Event): void {

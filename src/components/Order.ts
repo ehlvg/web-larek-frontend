@@ -18,6 +18,9 @@ export class Order extends Form implements IOrderView {
         this.paymentButtons.forEach(button => {
             button.addEventListener('click', (event) => this.handlePaymentClick(event));
         });
+        this.address.addEventListener('input', () => {
+            this.events.emit('order:address-change', { address: this.address.value });
+        });
     }
 
     setPaymentMethod(method: PaymentMethod): void {

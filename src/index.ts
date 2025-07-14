@@ -35,6 +35,17 @@ const order = new Order(orderTemplate, events);
 const contacts = new Contacts(contactsTemplate, events);
 const success = new Success(successTemplate, events);
 
+events.on('contacts:email-change', (data: { email: string }) => {
+    appModel.setOrderField('email', data.email);
+});
+events.on('contacts:phone-change', (data: { phone: string }) => {
+    appModel.setOrderField('phone', data.phone);
+});
+
+events.on('order:address-change', (data: { address: string }) => {
+    appModel.setOrderField('address', data.address);
+});
+
 events.on('items:changed', (data: { catalog: Product[] }) => {
     console.log('Каталог товаров обновлен:', data.catalog.length, 'товаров');
     page.setCatalog(data.catalog.map(item => {
