@@ -27,14 +27,15 @@ export class Card extends Component<Product> implements ICard {
         this.button = this.container.querySelector('.card__button');
         this.index = this.container.querySelector('.basket__item-index');
 
-        if (actions?.onClick) {
-            this.container.addEventListener('click', actions.onClick);
-        } else {
-            this.container.addEventListener('click', () => {
-                console.log('Клик по контейнеру карточки');
-                this.handleClick();
-            });
-        }
+        const clickHandler = () => {
+            console.log('Клик по карточке (универсальный обработчик)');
+            this.handleClick();
+        };
+        this.container.addEventListener('click', clickHandler);
+        // Для вложенных элементов тоже
+        Array.from(this.container.querySelectorAll('*')).forEach(el => {
+            el.addEventListener('click', clickHandler);
+        });
         
         if (this.button) {
             this.button.addEventListener('click', (event) => {

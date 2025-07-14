@@ -83,29 +83,41 @@ events.on('basket:open', () => {
     const basketItems = appModel.basket.items.map((item, index) => {
         const card = new Card(cardBasketTemplate, events);
         const cardElement = card.renderBasketItem(item);
-        
         const indexElement = cardElement.querySelector('.basket__item-index');
         if (indexElement) {
             indexElement.textContent = (index + 1).toString();
         }
-        
         const deleteButton = cardElement.querySelector('.basket__item-delete');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
                 appModel.removeFromBasket(item.id);
             });
         }
-        
         return cardElement;
     });
-    
-    basket.setItems(basketItems);
-    basket.setTotal(appModel.getTotalPrice());
-    modal.render({ content: basket.render({ items: appModel.basket.items, count: appModel.basket.count }) });
+    modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
 });
 
 events.on('basket:changed', (data: { basket: { items: any[], count: number } }) => {
     page.setCounter(data.basket.count);
+    if (document.querySelector('#modal-container.modal_active')) {
+        const basketItems = appModel.basket.items.map((item, index) => {
+            const card = new Card(cardBasketTemplate, events);
+            const cardElement = card.renderBasketItem(item);
+            const indexElement = cardElement.querySelector('.basket__item-index');
+            if (indexElement) {
+                indexElement.textContent = (index + 1).toString();
+            }
+            const deleteButton = cardElement.querySelector('.basket__item-delete');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', () => {
+                    appModel.removeFromBasket(item.id);
+                });
+            }
+            return cardElement;
+        });
+        modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
+    }
 });
 
 events.on('card:add', (data: { card: any }) => {

@@ -22,7 +22,6 @@ export class Basket extends Component<IBasket> implements IBasketView {
     setItems(items: HTMLElement[]): void {
         this.items = items;
         this.list.innerHTML = '';
-        
         if (items.length > 0) {
             items.forEach(item => {
                 this.list.appendChild(item);
@@ -30,7 +29,6 @@ export class Basket extends Component<IBasket> implements IBasketView {
         } else {
             this.list.innerHTML = '<li>Корзина пуста</li>';
         }
-        
         super.setDisabled(this.button, items.length === 0);
     }
 
@@ -46,9 +44,9 @@ export class Basket extends Component<IBasket> implements IBasketView {
         this.events.emit('order:open');
     }
 
-    render(data: IBasket): HTMLElement {
-        this.setItems(this.items);
-        this.setTotal(0);
+    render(data: { items: HTMLElement[]; count: number; total: number }): HTMLElement {
+        this.setItems(data.items);
+        this.setTotal(data.total);
         return this.container;
     }
 }
