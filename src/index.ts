@@ -42,6 +42,10 @@ events.on('contacts:phone-change', (data: { phone: string }) => {
     appModel.setOrderField('phone', data.phone);
 });
 
+events.on('contacts:validate', () => {
+    appModel.validateContacts();
+});
+
 events.on('order:address-change', (data: { address: string }) => {
     appModel.setOrderField('address', data.address);
 });
@@ -49,62 +53,53 @@ events.on('order:address-change', (data: { address: string }) => {
 events.on('items:changed', (data: { catalog: Product[] }) => {
     console.log('Каталог товаров обновлен:', data.catalog.length, 'товаров');
     page.setCatalog(data.catalog.map(item => {
-        const card = new Card(cardCatalogTemplate, events);
-        const cardElement = card.render(item);
-        cardElement.addEventListener('click', () => {
-            console.log('Клик по карточке из каталога:', item.title);
-            events.emit('card:select', { card: item });
+        const card = new Card(cardCatalogTemplate, events, {
+            onClick: (event) => {
+                events.emit('card:select', { card: item });
+            }
         });
-        return cardElement;
+        return card.render(item);
     }));
 });
 
 events.on('card:select', (data: { card: Product }) => {
-    console.log('Карточка выбрана:', data.card);
-    const card = new Card(cardPreviewTemplate, events);
+    const card = new Card(cardPreviewTemplate, events, {
+        onButtonClick: () => {
+            if (data.card.price === null) {
+                return; // Кнопка отключена для бесценных товаров
+            }
+            if (appModel.isInBasket(data.card.id)) {
+                appModel.removeFromBasket(data.card.id);
+            } else {
+                appModel.addToBasket(data.card);
+            }
+            modal.close();
+        }
+    });
+    
     const cardElement = card.render(data.card);
     
-    const button = cardElement.querySelector('.card__button');
-    if (button) {
-        if (data.card.price === null) {
-            button.textContent = 'Недоступно';
-            button.setAttribute('disabled', 'true');
-        } else if (appModel.isInBasket(data.card.id)) {
-            button.textContent = 'Убрать из корзины';
-            button.addEventListener('click', () => {
-                appModel.removeFromBasket(data.card.id);
-                modal.close();
-            });
-        } else {
-            button.textContent = 'В корзину';
-            button.addEventListener('click', () => {
-                appModel.addToBasket(data.card);
-                modal.close();
-            });
-        }
+    if (data.card.price === null) {
+        card.setButtonText('Недоступно');
+        card.setDisabled(card.button, true);
+    } else if (appModel.isInBasket(data.card.id)) {
+        card.setButtonText('Убрать из корзины');
+    } else {
+        card.setButtonText('В корзину');
     }
     
-    console.log('Рендерим модальное окно с карточкой');
     modal.render({ content: cardElement });
-    console.log('Модальное окно отрендерено');
 });
 
 events.on('basket:open', () => {
     console.log('Открытие корзины, товаров в корзине:', appModel.basket.items.length);
     const basketItems = appModel.basket.items.map((item, index) => {
-        const card = new Card(cardBasketTemplate, events);
-        const cardElement = card.renderBasketItem(item);
-        const indexElement = cardElement.querySelector('.basket__item-index');
-        if (indexElement) {
-            indexElement.textContent = (index + 1).toString();
-        }
-        const deleteButton = cardElement.querySelector('.basket__item-delete');
-        if (deleteButton) {
-            deleteButton.addEventListener('click', () => {
+        const card = new Card(cardBasketTemplate, events, {
+            onDeleteClick: () => {
                 appModel.removeFromBasket(item.id);
-            });
-        }
-        return cardElement;
+            }
+        });
+        return card.renderBasketItem(item, index);
     });
     modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
 });
@@ -115,23 +110,16 @@ events.on('basket:changed', (data: { basket: { items: any[], count: number } }) 
     if (modalContainer) {
         const modalContent = modalContainer.querySelector('.modal__content');
         if (modalContent && modalContent.querySelector('.basket')) {
-        const basketItems = appModel.basket.items.map((item, index) => {
-            const card = new Card(cardBasketTemplate, events);
-            const cardElement = card.renderBasketItem(item);
-            const indexElement = cardElement.querySelector('.basket__item-index');
-            if (indexElement) {
-                indexElement.textContent = (index + 1).toString();
-            }
-            const deleteButton = cardElement.querySelector('.basket__item-delete');
-            if (deleteButton) {
-                deleteButton.addEventListener('click', () => {
-                    appModel.removeFromBasket(item.id);
+            const basketItems = appModel.basket.items.map((item, index) => {
+                const card = new Card(cardBasketTemplate, events, {
+                    onDeleteClick: () => {
+                        appModel.removeFromBasket(item.id);
+                    }
                 });
-            }
-            return cardElement;
-        });
-        modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
-    }
+                return card.renderBasketItem(item, index);
+            });
+            modal.render({ content: basket.render({ items: basketItems, count: appModel.basket.count, total: appModel.getTotalPrice() }) });
+        }
     }
 });
 

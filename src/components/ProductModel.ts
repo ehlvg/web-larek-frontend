@@ -97,10 +97,14 @@ export class ProductModel implements IProductModel {
 
         if (!this.order.email) {
             errors.email = 'Необходимо указать email';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.order.email)) {
+            errors.email = 'Некорректный формат email';
         }
 
         if (!this.order.phone) {
             errors.phone = 'Необходимо указать телефон';
+        } else if (!/^(\+7|8)[\d\s\-\(\)]{10,}$/.test(this.order.phone.replace(/\s/g, ''))) {
+            errors.phone = 'Некорректный формат телефона';
         }
 
         this.events.emit('formErrors:change', {

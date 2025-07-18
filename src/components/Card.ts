@@ -12,33 +12,43 @@ export class Card extends Component<Product> implements ICard {
     description?: HTMLElement;
     button?: HTMLButtonElement;
     index?: HTMLElement;
+    protected deleteButton?: HTMLElement;
     private cardData: Product | null = null;
 
-    constructor(template: HTMLTemplateElement, protected events: IEvents, actions?: ICardActions) {
-        super(template.content.cloneNode(true) as HTMLElement);
-        
+    constructor(template: HTMLTemplateElement | HTMLElement, protected events: IEvents, actions?: ICardActions) {
+        let container: HTMLElement;
+        if (template instanceof HTMLTemplateElement) {
+            const cloned = template.content.cloneNode(true) as DocumentFragment;
+            container = cloned.firstElementChild as HTMLElement;
+        } else {
+            container = template;
+        }
+        super(container);
+
         this.title = ensureElement('.card__title', this.container);
         this.category = this.container.querySelector('.card__category') as HTMLElement;
         this.image = this.container.querySelector('.card__image') as HTMLImageElement;
         this.price = ensureElement('.card__price', this.container);
-        // Необязательные элементы
         this.description = this.container.querySelector('.card__text');
         this.button = this.container.querySelector('.card__button');
         this.index = this.container.querySelector('.basket__item-index');
+        this.deleteButton = this.container.querySelector('.basket__item-delete');
 
-        const clickHandler = () => {
-            console.log('Клик по карточке (универсальный обработчик)');
-            this.handleClick();
-        };
-        this.container.addEventListener('click', clickHandler);
-        Array.from(this.container.querySelectorAll('*')).forEach(el => {
-            el.addEventListener('click', clickHandler);
-        });
+        if (actions?.onClick) {
+            this.container.addEventListener('click', actions.onClick);
+        }
         
-        if (this.button) {
+        if (this.button && actions?.onButtonClick) {
             this.button.addEventListener('click', (event) => {
                 event.stopPropagation();
-                this.handleButtonClick();
+                actions.onButtonClick();
+            });
+        }
+
+        if (this.deleteButton && actions?.onDeleteClick) {
+            this.deleteButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                actions.onDeleteClick();
             });
         }
     }
@@ -71,6 +81,12 @@ export class Card extends Component<Product> implements ICard {
     setButtonText(text: string): void {
         if (this.button) {
             this.setText(this.button, text);
+        }
+    }
+
+    setIndexText(text: string): void {
+        if (this.index) {
+            this.setText(this.index, text);
         }
     }
 
@@ -121,11 +137,14 @@ export class Card extends Component<Product> implements ICard {
         return this.container;
     }
 
-    renderBasketItem(data: IBasketItem): HTMLElement {
+    renderBasketItem(data: IBasketItem, itemIndex?: number): HTMLElement {
         this.id = data.id;
+        this.cardData = data as Product;
         if (this.title) this.setText(this.title, data.title);
         if (this.price) this.setText(this.price, data.price + ' синапсов');
-        if (this.index) this.setText(this.index, '');
+        if (this.index && itemIndex !== undefined) {
+            this.setIndexText((itemIndex + 1).toString());
+        }
         return this.container;
     }
 

@@ -14,9 +14,11 @@ export class Contacts extends Form implements IContactsView {
         this.phone = ensureElement<HTMLInputElement>('[name="phone"]', this.form);
         this.email.addEventListener('input', () => {
             this.events.emit('contacts:email-change', { email: this.email.value });
+            this.events.emit('contacts:validate');
         });
         this.phone.addEventListener('input', () => {
             this.events.emit('contacts:phone-change', { phone: this.phone.value });
+            this.events.emit('contacts:validate');
         });
     }
 

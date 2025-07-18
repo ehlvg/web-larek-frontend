@@ -146,6 +146,7 @@ export interface ICard extends IView {
   setImage(element: HTMLImageElement, src: string, alt?: string): void;
   setDisabled(element: HTMLElement, state: boolean): void;
   setButtonText(text: string): void;
+  setIndexText(text: string): void;
   handleClick(): void;
   handleButtonClick(): void;
   handleDeleteClick?(): void;
@@ -330,5 +331,7 @@ export interface IProductModelConstructor {
 }
 
 export interface ICardActions {
-  onClick: (event: MouseEvent) => void;
+  onClick?: (event: MouseEvent) => void;
+  onButtonClick?: () => void;
+  onDeleteClick?: () => void;
 }
